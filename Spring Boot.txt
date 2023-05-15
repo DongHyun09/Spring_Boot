@@ -1,0 +1,221 @@
+1. Spring Boot란 ? (1강)
+Web App + Spring DI/Transaction/MVC/,,, + Servlet / JSP + WAS(Tomcat,...)
+Spring 환경에 Boot를 얹어서 작업해라. 아주 편리해질 것이다.
+
+
+2.학습개요 (2강)
+데이터를 DB에 저장하는 라이브러리로는 MyBatis가 있으니 이것으로 갈 것이다.
+따라하기 식의 Boot를 하겠다는 뉴렉처쌤. 하지만 괜찮다. 기본기는 어느정도 숙지하고 있으니.
+
+
+3.개발환경 준비(3강)
+
+sts를 깔았음.
+Spring과 관련되지 않은 것들은 최대한 제거한 상태로 준비되어있다.
+이 상태로 java 어플리케이션을 개발, Spring Prj을 개발 할 것이다.
+
+4.Spring Boot Starter Prj 만들기 (4강)
+
+Spring Starter Project 생성
+
+Name : SpringWeb
+Type : Maven
+java version : 8
+Group : com.newlecture
+artifact : SpringWeb
+Version : 1.0
+Description : Newlecture Spring Boot Project
+Package : com.newlecture.springweb
+
+Next
+
+가장 기본적인 라이브러리 하나만 추가 하고 가자.
+web을 확장하면 Spring web을 추가 하고 가자.
+
+finish
+
+이 녀석은 main함수를 가지고 있다.
+톰캣도 Spring Boot 밑에 들어간다는 얘기가 된다.
+
+HomeController를 추가할 것인데
+이 controller Package명을 손상해서는 안된다.
+우리는 
+com.newlecture.springweb.controller로 가져갈 것.
+
+URL은 Index 매핑. "/index"
+
+	@RequestMapping("/index")
+	public String asdf() {
+		return "Hello Spring Boot";
+	}
+	
+	@RequestMapping("/aabb")
+	public String aaa() {
+		return "aaaa";
+	}
+
+이 놈들을 실행해보기 위해 main함수를 실행 시켜보자, 했더니 실행이 안된다.
+
+댓:
+
+혹여 oracle 11g 버전을 사용하고 계시는 분은 8080포트를 이미 오라클이 점유하고 있어서 서버포트 에러때문에 메인함수가 실행되지 않을 것 같습니다. 
+src/main/resources패키지의 application.properties에 들어가서
+server.port=8090
+이 한문장만 추가하고 저장해주시면 포트번호가 8090으로 바뀝니다. 다른 번호로 하시고싶은 분은 다른 번호로 하셔도 무방할것 같습니다.
+
+
+실행됨.
+
+http://localhost:8082/aabb
+aaaa
+
+http://localhost:8082/index
+Hello Spring Boot
+
+
+5. 수업용 HTML파일 준비하기 (5강)
+
+Newlecture 사이트에....
+
+근데 webapp을 추가후 Wizzard에 html을 만들어보려고 하니 안뜸.
+
+ 댓:
+
+Q.
+질문있어요. 
+1분 36초 경에 나타나는 화면(Wizards)에서 ... 
+저의 화면에서는 Others라는 폴더가 없어요.  다른 폴더는 다 있는데...
+어떻게 해야 Other폴더를 찾을 수 있나요?.
+
+
+A.
+(1) STS4에서는 현시점(2021년 11월경) WEB관련 HTML, CSS, JSP 파일등을 생성 하려면 Tools를 따로 설치해줘야 합니다.
+
+(2) 상단 메뉴바에서 Help -> Eclipse MarketPlace... 클릭해줍니다.
+
+(3) MarketPlace에서 Java and web 검색 후 Eclipse Enterprise Java and Web Developer Tools install을 클릭해서 다운로드 받습니다.
+
+잘 됨.
+
+src -> main -> webapp 에서 
+aa.html <body>aa test</body>
+를 써주고 HomeController를 실행한 후, 
+url에 http://localhost:8082/aa.html를 써주니 아주 잘 실행된다.
+얘가 홈디렉토리구나 ! 여기다가 옮길것이냐 ?
+그건 아니다.
+src/main/resource를 열어보면 static 이 있는데, css,img등은 이곳에다가 옮길것이다.
+
+Spring boot는 홈 디렉토리가 두개가 있다고 보면된다
+
+정적인 파일들의 홈디렉토리 (static) 동적인 파일들의 홈디렉토리 (webapp)이 있다고 보면 됨.
+앞으로 추가는 webapp에 두고 쓸것이다.
+다음 시간에는 내용들을 가져다가 쓸 것.
+
+6. JSP View 추가하기 (6강)
+
+JSP문서를 만들기 전에 JSP라는 파일이 인식이 될 수 있게끔 설정해줄것이다.
+webapp루트에서 index.jsp를 요청하면 그 페이지의 내용을 보여줘야 하는데
+다운로드가 된다(...)
+
+이유는 jsp라는 파일을 처리할수있는 파일로 인식하지 못하기 때문이다.
+이것을 막기위해서는 jsp라는 파일을 처리할수있는 jsp라는 라이브러리를 추가할 수 있도록 한다.
+
+Boot를 시작하기 위해서 여러가지 방법이 있는데 
+run as 에 들어간 후 Spring boot app을 누르는 방법도 있고 기존 ctrl + F11도 있다.
+그리고 Boot Dashboard를 통해서 시작하는 방법도 있다. 
+
+이렇게 index.jsp를 만들고 시작했더니 다운로드가 된다.
+
+라이브러리를 추가해야한다.
+
+# maven repository에서 dependency에 tomcat embed jasper를 추가.
+
+그랬더니 version에 노란줄이 뜬다. 
+
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<version>10.0.27</version>
+		</dependency>	
+
+그냥 <version> 부분을 지워버리면 자신에게 맞는 버전을 알아서 쓰게해준다.
+
+이 상태에서 이제 서버를 키고 localhost를 요청해보면 jsp가 잘뜬다.
+
+
+7.사용자 공지를 위한 MVC 구현하기 (7강)
+
+Customer의 Notice를 위한 package와 view를 따로 만들어준다.
+@RestController들은 문자열로 반환
+@Controller는 View 페이지로 인식하기 위한 것.
+Model을 이용.
+
+8. Mapping, View 위치 바로잡기 (8강)
+
+view에서 데이터없이 view단이 요청이 되버리면 안된다.
+이것은 버그 아닌 버그이다.
+사용자가 직접 요청해서는 안되는 것.
+WEB-INF를 만든다.
+View를 따로 관리하기 위해 View라고하는 폴더를 이 안에다가 만들어준다.
+
+	@GetMapping("list")//list,detail,edit,reg,del
+	public String list(Model model) {
+		
+		model.addAttribute("test", "Hello~");
+
+		return "/WEB-INF/view/customer/notice/list.jsp";
+	}
+	
+	@RequestMapping("detail")//list,detail,edit,reg,del
+	public String detail() {
+		return "/WEB-INF/view/customer/notice/detail.jsp";
+	}
+	
+이렇게 위치를 잡아준다.
+
+
+9. View Resolver 설정 (9강)
+
+src/main/resource에서 application.properties에서 
+
+spring.mvc.view.prefix=/WEB-INF/view/
+spring.mvc.view.suffix=.jsp
+
+이 녀석들을 적어준다.
+
+그러면 return "/customer/notice/detail";
+이렇게 줄이는것이 가능해진다.
+
+간단..
+
+
+10. devtools 설정하기 (10강)
+
+부트를 다시 시작할 필요없이 dependency하나만 추가해주면 저장된 내용을 알아서
+재시작하게 해준다.
+
+#
+
+<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <version>2.6.6</version>
+</dependency>
+
+
+이것도 version을 지워보자.
+똑같이 노란색 줄 오류가 뜸.
+
+11.실습: 관리자를 위한 공지사항 페이지 추가하기 (11강)
+
+관리자를 위한 공지사항 컨트롤러, view 추가했음.
+
+12. 관리자를 위한 공지사항 페이지 추가하기 (12강)
+
+위와 같음. (했다.)
+
+13. 페이지 공통분모 집중화(13강)
+
+
+
