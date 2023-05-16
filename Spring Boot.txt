@@ -1,3 +1,7 @@
+
+
+<2023/05/15~2023/05/16. 1~13강)
+
 1. Spring Boot란 ? (1강)
 Web App + Spring DI/Transaction/MVC/,,, + Servlet / JSP + WAS(Tomcat,...)
 Spring 환경에 Boot를 얹어서 작업해라. 아주 편리해질 것이다.
@@ -217,5 +221,90 @@ spring.mvc.view.suffix=.jsp
 
 13. 페이지 공통분모 집중화(13강)
 
+Spring FrameWork 강의 참조
+
+
+<2023/05/15~2023/05/16. 14~20강 // ~ MySql강의 듣기 )
+
+
+14. Tile 지시서(14강)
+설정한 TilesViewResolver에서 먼저 찾게 됨.
+여기서 합쳐져서 반환하게 됨.
+
+15. Tiles ViewResolver 생성하기(15강)
+
+일반적으로 사용자 요청이있으면 Controller가 반환하게 됨.
+지시서에 있는 내용대로 page를 합치고 합친 것을 반환하는 것이 Tiles ViewResolver이다.
+
+
+타일즈와 관련된 객체를 만든다.
+
+@Configuration
+public class TilesConfig {
+     @Bean
+     public TilesConfigurer tilesConfigurer(){
+      TilesConfigurer tilesConfigurer = new TilesConfigurer();
+      tilesConfigurer.setDefinitions(new String[] { "/WEB-INF/tiles.xml"} );
+      tilesConfigurer.setCheckRefresh(true);
+      return tilesConfigurer;
+    }
+
+    @Bean
+    public TilesViewResolver tilesViewResolver(){
+       TilesViewResolver  viewResolver = new TilesViewResolver();
+       viewResolver.setViewClass(TilesView.class);
+       viewResolver.setOrder(1);
+       return viewResolver;
+   }    
+}
+
+@Configuration 
+@Bean <- IoC컨테이너에 담을 수 있게 해준다.
+@Bean은 콩을 주는 함수. 
+
+
+
+16. Tiles 패턴 사용하기 (16강)
+
+이전 과 같음.
+Tiles WildCard.
+
+
+17. Admin을 위한 Layout페이지 만들기
+
+위와 같음.
+
+18. Tiles의 추가 기능들(18강)
+
+첫번째로, 공통분모를 이렇게 만들어주게 된다면,
+<definition name="Layout.common" template="/WEB-INF/view/inc/layout.jsp">
+		<put-attribute name="title" value="GoWithNewLec" />
+		<put-attribute name="header" value="/WEB-INF/view/inc/header.jsp" />
+		<put-attribute name="body" value="/WEB-INF/view/{1}.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/view/inc/footer.jsp" />
+	</definition>
+
+
+
+두번째로, 이렇게 상속(extends)을 받아서 공통된 부분은 빼주면 된다.
+<definition name="admin.*.*.*" template="/WEB-INF/view/admin/inc/layout.jsp" extends="Layout.common">
+
+
+19. MyBatis 설정하는 방법
+일단 MySql과 MyBatis 라이브러리 추가.
+Interface를 거쳐서 ServiceImp.
+SQL구문을 DAO라는 녀석을 거친다.
+서비스를 구현하는 사람은 자바 객체를 구현할수있어야 한다.
+MyBatis는 Dao라는 녀석을 구현할때 반복적인 부분이많은데 이 부분을 확 줄여주는게 MyBatis이다.
+MyBatis는 사용률이 높고 굉장히 유연하게 사용된다.
+과거에는 여러가지 설정이있었는데, 이 설정이 많이 적어졌다.거의 제로에 가까워졌다.
+#라이브러리를 추가 해준다. Mapper객체를 구현할 때, 이것이 알아서 해준다.
+일단 MyBatis를 쓰기 위해서는 JDBC(MySql) MyBatis 라이브러리를 가져와야 한다.
+
+application properties에 db 계정정보만 넣어주면 된다.
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.url=jdbc:mysql://server/db...
+spring.datasource.username=사용자ID
+spring.datasource.password=비밀번호
 
 
