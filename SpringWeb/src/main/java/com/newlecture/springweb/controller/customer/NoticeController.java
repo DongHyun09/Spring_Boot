@@ -14,11 +14,11 @@ public class NoticeController {
 		
 		model.addAttribute("test", "Hello~! Devtools");
 
-		return "customer/notice/list";
+		return "customer.notice.list";
 	}
 	
 	@RequestMapping("detail")//list,detail,edit,reg,del
 	public String detail() {
-		return "/customer/notice/detail";
+		return "customer.notice.detail";
 	}
 }
