@@ -22,16 +22,12 @@
 	<!-- header 부분 -->
 	<tiles:insertAttribute name="header" />
 	<!-- --------------------------- <visual> --------------------------------------- -->
-	<!-- visual 부분 -->
-	<tiles:insertAttribute name="visual" />
 
 	<!-- --------------------------- <body> --------------------------------------- -->
 	<div id="body">
 		<div class="content-container clearfix">
 
 			<!-- --------------------------- aside --------------------------------------- -->
-			<tiles:insertAttribute name="aside" />
-			<!-- aside 부분 -->
 
 			<!-- --------------------------- main --------------------------------------- -->
 			<tiles:insertAttribute name="body" />
