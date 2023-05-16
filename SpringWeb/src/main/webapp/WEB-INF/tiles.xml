@@ -25,5 +25,4 @@
 		<put-attribute name="body" value="/WEB-INF/view/admin/{1}/{2}/{3}.jsp" />
 	</definition>
 
-
 </tiles-definitions>	
