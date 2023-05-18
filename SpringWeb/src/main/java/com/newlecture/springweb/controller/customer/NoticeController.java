@@ -1,18 +1,29 @@
 package com.newlecture.springweb.controller.customer;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.newlecture.springweb.entity.Notice;
+import com.newlecture.springweb.service.NoticeService;
+
 @Controller
 @RequestMapping("/customer/notice/")
 public class NoticeController {
-
+	
+	@Autowired
+	private NoticeService service;	
+	
 	@GetMapping("list")//list,detail,edit,reg,del
 	public String list(Model model) {
 		
-		model.addAttribute("test", "Hello~! Devtools");
+		List<Notice> list = service.getList();
+		
+		model.addAttribute("list", list);
 
 		return "customer.notice.list";
 	}

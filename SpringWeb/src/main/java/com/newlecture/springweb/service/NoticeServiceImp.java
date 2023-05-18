@@ -3,10 +3,12 @@ package com.newlecture.springweb.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.newlecture.springweb.dao.NoticeDao;
 import com.newlecture.springweb.entity.Notice;
 
+@Service
 public class NoticeServiceImp implements NoticeService{
 
 	@Autowired
