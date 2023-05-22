@@ -29,4 +29,22 @@
 	order by regdate desc
 	limit 1;
 	</select>
+	
+	<update id="update" parameterType="com.newlecture.springweb.entity.Notice">
+		update 
+		set
+			title = #{title},
+			content = #{content},
+			hit = #{hit},
+			pub = #{pub}
+		where id = #{id}
+	</update>
+	<insert id="insert" parameterType="com.newlecture.springweb.entity.Notice">
+ 	insert into Notice(title,content,memeberId)
+ 	values(#{title},#{content},#{memberId})
+	</insert>
+	<delete id="delete">
+		delete from Notice
+		where id #{id}
+	</delete>
 </mapper>

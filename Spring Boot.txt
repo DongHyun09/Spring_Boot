@@ -997,3 +997,39 @@ limit 1;
 반대는 &lt; (less than) 을 써준다.
 
 
+33. Mapper 구현하기 #3 (insert/update/delete) (33강)
+
+notice란 녀석을 가지고 수정해야될 녀석은 제목title,내용 content, hit, pub를 업데이트 해야됨.
+
+
+(1)update
+<update id="update">
+		update 
+		set
+			title = #{title},
+			content = #{content},
+			hit = #{hit},
+			pub = #{pub}
+		where id = #{id}
+	</update>
+이렇게 만들어줌.
+
+(2)insert 
+-> 기본값으로 id,regdate,hit,pub가 있다
+우리는 제목과 내용 작성자 id만 입력하면 된다.
+
+insert into Notice(title,content,memeberId)
+ values(#{title},#{content},#{memberId})
+
+(3)delete
+delete from Notice
+where id #{id}
+
+select의 경우 반환 타입이 뭔지 설정해줘야 되지만
+update, insert의 경우 입력타입으로 설정해줘야 한다.
+delete는 객체를 넘겨받는게 아니라 생략해도 된다.
+
+parameterType="com.newlecture.springweb.entity.Notice"
+
+이런식으로 쿼리를 설정할 수 있다.
+
