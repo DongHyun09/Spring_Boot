@@ -916,3 +916,84 @@ NoticeView getView(int id)로 변경.
 
 이제 이것들을 MyBatis를 이용해서, Mapper로 구현하면 된다.
 
+31. Dao Mapper 구현하기 #1 (31강)
+
+	
+	int updatePubAll(int[] pubIds, int[] closeIds);
+	int deleteAll(int[] ids);
+
+이 녀석들은 동적 쿼리를 갖고있는 놈들이라
+나중에 구현해볼것이다.
+
+자 이제, DaoMapper에서
+
+getCount
+	<select id="getCount">
+	select count(id) count from notice 
+	where ${field} like '%${query}%'
+	</select>
+
+이 녀석을 써주는데
+우리는 컬럼을 뽑아내는 것이 아니기 때문에 from noticeview에서 굳이 view를 써서 성능을 저하시킬 필요는 없을 것 같다.
+
+getView
+<select id="getView" resultType="com.newlecture.springweb.entity.NoticeView">
+	select * from noticeview 
+			where id=#{id}
+	</select>
+
+32.Dao Mapper 구현하기 #2 (getNext/getPrev) (32강)
+getNext는 특이한 녀석이다
+함수에게 id를 주면
+ex) 
+id title wirter
+5 SQL구문 newlec
+3  DML사용하기 newlec  
+
+3이라는 id를 주면 5번 id에 해당되는것을 얻고자하는것이다
+이것을 어떻게 얻을수있을까 ?
+다음값에 해당되는 id를 얻기 위해서는 날짜를 기준으로,
+등록일 기준으로 정렬되어있는 상태이기때문에 날짜순으로 
+다음 녀석이 얻고자하는 레코드가 된다.
+가장 오래된 날짜순의 첫번째를 얻으면 된다
+쿼리로는 
+
+ex)
+select id from notice where regdate > (select regdate from notice where id = 3)
+
+이것을 그대로 따라서 만들어볼것이다.
+
+
+use newlecture;
+select * from notice
+where regdate > (select regdate from notice where id = 7) 
+limit 1;
+
+한가지 주의사항이 있는데 xml문서에서는 사용할수없다
+tag에서 사용될수있는 것이기 때문에
+&gt;라는 키워드를 이용해서 써서 꺾음쇠를 대신할 수 있다.
+
+이제 Next (다음글)을 구현했으니
+Prev (이전글)을 구현해볼 것이다.
+
+
+select * from notice
+where regdate < (select regdate from notice where id = 7) 
+order by regdate desc
+limit 1;
+
+이 녀석을 써줌.
+하나만 뽑아내야 되니 마찬가지로 limit 1을 써줌.
+
+
+		<select id="getPrev" resultType="com.newlecture.springweb.entity.Notice" >
+	select * from notice
+	where regdate &lt; (select regdate from notice where id = 7) 
+	order by regdate desc
+	limit 1;
+	</select>
+
+여기서는 꺾음쇠가 반대인데
+반대는 &lt; (less than) 을 써준다.
+
+
