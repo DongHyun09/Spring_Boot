@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newlecture.springweb.dao.NoticeDao">
+	<select id="getList" resultType="com.newlecture.springweb.entity.NoticeView">
+			select * from noticeview 
+			where ${field} like '%${query}%'
+			order by regdate desc
+			limit #{offset}, #{size}	
+	</select>
+<!-- 	<insert id="insert" parameterType="com.newlecture.springweb.Notice">
+	insert into notice(...)
+	</insert> -->
+</mapper>

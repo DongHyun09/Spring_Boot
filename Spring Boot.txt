@@ -486,3 +486,433 @@ getter setter.
 이제 list.jsp에서 넘겨받는 데이터를 forEach로 보여주자 ! 성공.
 
 
+24.Notice View 만들기 (24강)
+
+create view NoticeView
+as
+select n.*, m.name memeberBame from notice n 
+join member m on n.memberId = m.id;
+
+
+View table을 만들어준 후 join하고 
+entity 패키지에 NoticeView 생성 후, Impl, Service, Controller. 그에 맞게 각 수정. 
+
+create view NoticeView
+as
+select n.*, m.name memeberBame from notice n 
+join member m on n.memberId = m.id;
+
+
+http://localhost:8082/customer/notice/list
+
+이런식으로 다른 부모 테이블외에 컬럼이 필요하다면 
+View를 만들어서  목록을 준비하면 된다.
+
+25.Mybatis Column 매핑 (25강)
+
+view table의  컬럼 이름을 바꿔버리면
+entity의 setter명(memberName)과 view 컬럼(member_Name)과 이름이 달라서 
+호환이 되지 않는다. 
+이럴 때는, 
+
+@Mapper
+public interface NoticeDao { 
+	
+	@Result(property="memberName", column="member_name")
+	@Select("select * from noticeview")
+	List<NoticeView> getList();
+
+	Notice get(int id);
+
+}
+
+이런식으로 써주면 된다.
+그럼 값이 정상적으로 출력이 된다.
+
+regdate -> reg_date
+memberId-> member_id로 컬럼을 바꿨는데,
+
+이렇게 여러개를 바꿨을 때는 배열처럼 사용할수있다.
+예제를 보면
+
+	
+	@Results({
+		@Result(property="memberName", column="member_name"),
+		@Result(property="regdate", column="reg_date")
+				})
+
+이렇게 바꿔쓸 수 있다.
+http://localhost:8082/customer/notice/list
+
+
+
+26.Mapper에 param 포함하기(26강)
+
+
+	@GetMapping("list")//list,detail,edit,reg,del
+	public String list(Model model) {
+		
+		int page = 1;
+		String field = "title";
+		String query = "";
+		
+		List<NoticeView> list = service.getList();
+		
+		model.addAttribute("list", list);
+
+		return "customer.notice.list";
+	}
+
+사용자가 1페이지를 달라하고,
+검색필드를 title, 쿼리값으로 모든걸 검색했다 치자.
+
+-> 바뀐 인터페이스
+
+public interface NoticeService {
+
+	List<NoticeView> getList(int page, String field, String query);
+
+	Notice get(int id);
+
+}
+
+->구현체 (impl)
+
+	@Override
+	public List<NoticeView> getList(int page, String field, String query) {
+		
+		List<NoticeView> list = noticeDao.getList();
+		
+		return list;
+	}
+
+
+
+MySQL ->
+
+select * from noticeview
+where title like '%3%' (3이 들어간것만)
+order by regdate desc
+limit 10;
+
+삽입된 데이터를 10개까지만 보여주겠다.
+
+limit 10 offset 1;
+하나를 건너뛰고 10개를 보여주겠다.
+
+limit 10 offset 0;
+-> 처음부터 10개가 나옴
+
+limit 10 offset 10;
+-> 다음 페이지가 나오게 됨.
+
+이것을
+
+limit 0,10; (건너뛰지 않고 10개)
+limit 10,10; (건너뛰고 10개)
+
+
+자 이제 dao를 바꿔줌
+
+@Select("select * from noticeview "
+			+ "where title like '%3%' "
+			+ "order by regdate desc "
+			+ "limit 0, 10;")
+
+전달할 값이 총 4개가 된다.
+limit값 (0,10), title, %3%
+
+
+Dao ->
+
+@Select("select * from noticeview "
+			+ "where title like '%3%' "
+			+ "order by regdate desc "
+			+ "limit 0, 10;")
+	List<NoticeView> getList(int offset, int size, String field, String query);
+
+
+
+NoticeServiceImpl ->
+
+	
+	@Override
+	public List<NoticeView> getList(int page, String field, String query) {
+		
+		int size = 10;
+		int offset = 0+(page-1)*size; 
+//page 1이면 offset 0, 2 -> 10, 3 -> 20 an=a1+(n-1)d -> 0+(page-1)*10
+		
+		List<NoticeView> list = noticeDao.getList(offset, size, field, query);
+		
+		return list;
+	}
+
+
+이제 이 안에서 계산을 해줘야됨.
+첫항이 0이고 공차가 10인 등차수열이다.
+
+
+이제 Noticedao로 와서,
+MyBatis에서는 쿼리 안에 값을 꽂을때는
+#{}를 써야된다.
+
+
+@Select("select * from noticeview "
+			+ "where title like '%3%' "
+			+ "order by regdate desc "
+			+ "limit 0, 10;")
+
+----->>>>>
+
+
+
+	@Select("select * from noticeview "
+			+ "where ${field} like '%${query}%' "
+			+ "order by regdate desc "
+			+ "limit #{offset}, #{size};")
+
+#의 의미는 값을 꽂는다.
+그런데 filed를 title이 들어가는게 아니고 양쪽에
+'title' 이렇게 들어가버린다.
+이런 문제를 해결하기 위해, 값이 아닌 title이라는 것만 남기기 위해서는 ${}를 쓰면 된다.
+이것을 쓰면 그대로 문자열을 꽂아넣게 된다.
+뒤에도 마찬가지.
+
+
+자 이제 정리하면,
+Controller에서 값이 전달될것이고, serviceimp에서 dao로 전달할때 dao에서는 구현하기 위해 값을 잘 꽂아놨음.
+
+dao라는 녀석을 구현할 때 인자를 꽂아넣는 방법을 알아봤다.
+
+
+
+27. xml을 이용한 매핑(27강)
+
+지난 시간까진 @select같은 annotation을 이용해서 매핑을 했다.
+쿼리문이 복잡해지면 복잡해질수록 어노테이션을 이용하는것은 복잡성을 높일수밖에없다.
+그래서 이 방법은 좀 아님.
+
+지금 우리가 구현한 interface는 MyBatis와 떼기 조금 어려워졌다.
+
+
+//	@Results({
+//		@Result(property="memberName", column="member_name"),
+//		@Result(property="regdate", column="reg_date")
+//				})
+	@Select("select * from noticeview "
+			+ "where ${field} like '%${query}%' "
+			+ "order by regdate desc "
+			+ "limit #{offset}, #{size};")
+
+
+이것을 잘라내버림.
+
+NoticeDao 패키지 안에
+NoticeDaoMapper 패키지를 만들고,
+NoticeDaoMapper.xml을 만들어준다.
+
+xml에
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.mybatis.example.BlogMapper">
+  <select id="selectBlog" resultType="Blog">
+    select * from Blog where id = #{id}
+  </select>
+</mapper>
+
+이 녀석 (MyBatis 홈페이지 Getting Started)을 복사 붙여넣기 해준다.
+
+<mapper namespace="com.newlecture.springweb.dao.NoticeDao">
+
+여기에는 interface의 풀 네임을 써줘야 한다.
+
+
+<mapper namespace="com.newlecture.springweb.dao.NoticeDao">
+	<select id="getList">
+			select * from noticeview 
+			where ${field} like '%${query}%'
+			order by regdate desc
+			limit #{offset}, #{size}	
+	</select>
+</mapper>
+
+이렇게 써줌으로서 쿼리의 복잡도도 조금 더 간단히 풀어줄수있고, Mybatis로부터 조금더 멀어질수도 있다.
+이녀석을 반환할때, MyBatis는 결과집합을 담아줄때 어떠한 그릇에 entity에 담아줄까요 ?  물어보는데, 
+NoticeView가 entity 그릇.
+
+이것을 써주기 위해 ,
+<mapper namespace="com.newlecture.springweb.dao.NoticeDao">
+
+이렇게 써준다.
+이게 목록인지, 단일값인지는 안써줘도 된다.
+
+insert도 구현해보자.
+
+return값은 정수값이다. 우리가 필요한 값은 입력값이다.
+이때 notice라는 entity에 담아줄것이기 때문에 인자로 들어올 parameterType을 써주면 된다.
+<insert id="insert" parameterType="com.newlecture.springweb.Notice">
+
+이렇게 xml을 만들어준것을 찾아주기위해
+application.properties에 추가해줄 것이 있다.
+
+mybatis.mapper-locations=classpath:com/newlecture/springweb/dao/mybatis/mapper/*.xml
+
+
+이 녀석안에 xml을 여러개 만들어줄것이란 걸 알려주기 위해 *을 썼음.
+
+28.XML proposals 오류 문제(28강)
+
+"https://mybatis.org/dtd/mybatis-3-mapper.dtd"
+
+dtd는 사용할수있는 태그를 정의할수있는 문서를 정의하는것.
+
+
+<를 누르면 태그를 보여주는데, 여기서는 안나온다.
+이것을 해결해주기 위해, 이클립스 마켓플레이스에 
+xml을 검색애서 ecilpse xml editors를 설치해준다.
+근데 나는 설치가 되어있다.
+
+
+29.NoticeService 인터페이스 정의하기(29강)
+
+Dao를 구현하기 위해서 필요한 service가 무엇인지 ?
+
+
+NoticeService
+-페이지를 요청할 때
+List<NoticeView> getViewList(); --> 작성자는 memeber라는 녀석을 가져와야되기 때문에 view를 가져와야 한다.
+int getCount(); --> 전체 페이지
+
+-검색을 요청할 때
+List<NoticeView> getViewList(String field, String query);
+
+-페이지를 요청할 때(버튼 누를때)
+List<NoticeView> getViewList(int page, String query);
+ex) 페이지를 누를때 3개의 페이지에서 페이지를 누를때
+검색결과에 의한 페이지가 나와야 한다.
+int getCount(String field, String query);
+
+-일괄공개를 요청할때 (공개되어있는 녀석은 check가 되어있도록)
+int updatePubAll(int[] publds, int[] closelds);
+
+-일괄삭제를 요청할 때
+int deleteAll(int[] lds);
+
+-자세한 페이지를 요청할 때
+NoticeView get(id);
+
+이렇게 끝나는게 아닌, 
+우리가 구현한 페이지를 잘보면
+자세한 페이지 안에서도 다음글과 이전글이 구현되어있다.
+
+따라서 
+
+Notice getNext(id);
+Notice getPrev(id);
+
+이녀석들도 만들어준다.
+
+
+-수정 페이지를 요청할 때
+NoticeView get(id)
+update(Notice notice);
+int delete(int id);
+int insert(Notice notice);
+
+
+
+
+
+자 정리해보면, NoticeService에
+
+package com.newlecture.springweb.service;
+
+import java.util.List;
+
+import com.newlecture.springweb.entity.Notice;
+import com.newlecture.springweb.entity.NoticeView;
+
+public interface NoticeService {
+
+	// --페이지를 요청할 때
+	List<NoticeView> getViewList();
+
+	// --검색을 요청할 때
+	List<NoticeView> getViewList(String field, String query);
+
+	// -페이지를 요청할 때
+	List<NoticeView> getList(int page, String field, String query);
+
+	int getCount();
+
+	int getCount(String field, String query);
+
+	// -자세한 페이지 요청할 때
+	Notice get(int id);
+
+	Notice getNext(int id);
+
+	Notice getPrev(int id);
+
+	// -일괄공개를 요청할 때
+	int updatePubAll(int[] pubIds, int[] closeIds);
+
+	// -일괄삭제를 요청할 때
+	int deleteAll(int[] ids);
+
+	// -수정 페이지를 요청할 때
+	int update(Notice notice);
+
+	int delete(int id);
+
+	int insert(Notice notice);
+
+}
+
+이 녀석들이 들어가게 된다.
+
+--> NoticeView get(int id)를
+NoticeView getView(int id)로 변경.
+
+
+30. NoticeDao 인터페이스 정의하기(30강)
+
+	@Override
+	public List<NoticeView> getViewList() {
+		// TODO Auto-generated method stub
+		return getViewList(1, "title", "");
+	}
+
+	@Override
+	public List<NoticeView> getViewList(String field, String query) {
+		// TODO Auto-generated method stub
+		return getViewList(1, field, query);
+	}
+
+	@Override
+	public List<NoticeView> getViewList(int page, String field, String query) {
+		
+		int size = 10;
+		int offset = 0+(page-1)*size; //page 1이면 offset 0, 2 -> 10, 3 -> 20 an=a1+(n-1)d -> 0+(page-1)*10
+		
+		List<NoticeView> list = noticeDao.getList(offset, size, field, query);
+		
+		return list;
+	}
+
+
+이렇게 같은것인데 인자가 다를 경우
+맨 마지막 것만 구현하는 것이다.
+
+마지막을 재호출하는 방법으로 가야 된다.
+(인자가 제일 많은 녀석을 재호출하는 방법)
+
+각각 함수들의 반환값을 정의해준다.NoticeDao.~~
+
+빨간줄들을 create 해준다.
+
+이제 이것들을 MyBatis를 이용해서, Mapper로 구현하면 된다.
+
