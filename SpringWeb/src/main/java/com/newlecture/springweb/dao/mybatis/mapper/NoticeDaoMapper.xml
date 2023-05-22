@@ -9,7 +9,24 @@
 			order by regdate desc
 			limit #{offset}, #{size}	
 	</select>
-<!-- 	<insert id="insert" parameterType="com.newlecture.springweb.Notice">
-	insert into notice(...)
-	</insert> -->
+	
+	<select id="getCount">
+	select count(id) count from notice 
+	where ${field} like '%${query}%'
+	</select>
+	<select id="getView" resultType="com.newlecture.springweb.entity.NoticeView">
+	select * from noticeview 
+			where id=#{id}
+	</select>
+	<select id="getNext" resultType="com.newlecture.springweb.entity.Notice" >
+	select * from notice
+	where regdate &gt; (select regdate from notice where id = #{id}) 
+	limit 1;
+	</select>
+		<select id="getPrev" resultType="com.newlecture.springweb.entity.Notice" >
+	select * from notice
+	where regdate &lt; (select regdate from notice where id = #{id}) 
+	order by regdate desc
+	limit 1;
+	</select>
 </mapper>
