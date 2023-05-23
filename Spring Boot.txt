@@ -1033,3 +1033,174 @@ parameterType="com.newlecture.springweb.entity.Notice"
 
 이런식으로 쿼리를 설정할 수 있다.
 
+34.Dynamic SQL Dao Mapper 구현하기 (delete All) (34강)
+
+	<delete id="deleteAll">
+	
+	</delete>
+
+이런 태그를 mapper에 만들어줌.
+반환하기 위한 타입이 없고, 기본형임.
+문제는 여기서 우리가 삭제할때, 정수 하나가 아니라
+여러개의 정수인 배열을 담고있다.
+따라서,
+배열을 어떻게 펼칠수있을까?
+MyBatis에서는 Dynamic하게 쿼리를 만들수가 있다.
+항목이 전달되는것이 1개면 1개, 10개면 10개가 나오도록.
+구글에 mybatis dynamic sql을 치면 공지사이트가있다.
+우리가 사용하고자하는 것은 foreach.
+
+<delete id="deleteAll">
+		delete from Notice
+		where id in 
+		 <foreach item="id" index="index" collection="ids"
+        open="ID in (" separator="," close=")">
+          #{id}
+    </foreach>;
+	</delete>
+
+
+		 <foreach item="id" index="index" collection="ids"
+        open="ID in (" separator="," close=")">
+          #{id}
+    </foreach>;
+
+여기서 foreach로 하나하나씩 꺼내게되는데
+list에서 하나씩 꺼낼때 사용하는 변수가 item=""이다.
+#{id}가 계속 반복되는데, 반복이 진행되는 초기에는 소괄호가 열리고 끝날때는 소괄호가 닫힌다. 반복하며 구분자로 separator , close 같이 ,쉼표를 씀.
+
+우리가 in 뒤에 무엇을 담던, ()와 id가 ,구분되어서 들어갈것이다.
+
+35.Dynamic SQL Dao Mapper 구현하기 #5
+(updatePubAll) (35강)
+
+int updatePubAll(int[] pubIds, int[] closeIds);
+
+하나는 공개할 id와 비공개할 id.
+
+이것을 가지고 update를 할 것.
+
+	<update id="updatePubAll">
+	
+	</update>
+
+저 두개를 모두 처리할것인데, switch문장을 이용해서 하나의 문장으로 처리할것이다.
+	<update id="updatePubAll">
+		update Notice
+		set
+			pub = case id
+				when 14 then 0
+				when 15 then 0
+				when 21 then 1
+				when 22 then 1
+			end
+		where id in (14,15,21,22)
+	</update>
+
+이렇게.
+pub라는 컬럼에 0또는 1을 넣고싶은것이다.
+그것에 사용하는 번호를 when 절로 넣은 것이다.
+close할 녀석은 0, pub할 녀석은 1로 놓은것이다.
+조금 더 현실적으로 만들겠다고 한다면,
+
+int updatePubAll(int[] ids, boolean pub);
+그냥 id를 넘겨받는것. 
+열것인지 말것인지 질의값 boolean pub를 둠.
+이렇게 만들어줘도 된다.
+
+	int updatePubAll(int[] pubIds, int[] closeIds);
+
+이것은
+UI를 보고 UI에서 직관적으로 열어야될것, 닫혀야될것을 
+적용되어야 한다.
+이 두가지 모두를 작업해볼것이다.
+
+이랬을 때 문제가, ids 하나를 가지고 해야하기 떄문에.
+트랜잭션 처리가 문제가 된다.
+
+어쨌든 초기에 만들었던 것으로 해볼것.
+
+저 위의 쿼리문을 foreach문으로 해볼것이다.
+update Notice
+		set
+			pub = case id
+<foreach  item="id" collection="pubIds">
+				
+				</foreach>
+			end
+		where id in (14,15,21,22)	
+
+저 안에서 처리하는 과정에서 index가 필요하면
+index="index"를 쓰는데, 우리는 필요하지 않기떄문에
+쓰지 않겠다.
+
+
+	<update id="updatePubAll">
+	update Notice
+		set
+			pub = case id
+				<foreach  item="id" collection="pubIds">
+					when #{id} then 1
+				</foreach>
+					<foreach  item="id" collection="closeIds">
+					when #{id} then 0
+				</foreach>
+			end
+		where id in (
+	
+			<foreach  item="id" collection="pubIds">
+					when #{id} then 1
+				</foreach>
+				,
+					<foreach  item="id" collection="closeIds">
+					when #{id} then 0
+				</foreach>)	
+
+
+in 뒤에는 반복이 끝났을 때의 모양을 생각하면 된다.
+
+	where id in ( 
+	
+			<foreach  item="id" collection="pubIds">
+					#{id}
+				</foreach>
+				,
+					<foreach  item="id" collection="closeIds">
+					#{id}
+				</foreach>)	
+
+이렇게 만들어준다.
+근데 별로 그렇게 이뻐보이지는 않는다는 뉴렉쌤.
+
+차라리 
+int updatePubAll(int[] ids, boolean pub);
+이것으로 구현하는게 낫다고 한다.
+
+
+36.Dynamic SQL Dao Mapper 구현하기 #6 
+(추가된 updatePubAll)(36강)
+
+MyBatis는 같은 이름을 허용하지 않기때문에(overoad)
+전에 했던 updatePubAll 하나를 주석처리 해주자.
+
+
+
+update Notice
+	set
+		pub = #{pub}
+		where id in
+		<foreach item="id" index="index" collection="ids"
+        open="ID in (" separator="," close=")">
+          #{id}
+    </foreach>;
+	
+
+
+ids라는 녀석을 받아서 하나씩 꺼내서 id를가지고 앞뒤 구분자를 넣어서 괄호를 만들어줬디.
+
+Dynamic 쿼리에서 제일 많이 처리하는 것은
+조건처리, where 절 이어붙이기 같은 것이 있기때문에
+다시 mapper 전체적으로 손볼것이다.
+
+
+
