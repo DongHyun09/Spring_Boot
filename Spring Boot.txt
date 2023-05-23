@@ -1203,4 +1203,96 @@ Dynamic 쿼리에서 제일 많이 처리하는 것은
 다시 mapper 전체적으로 손볼것이다.
 
 
+37.Dynamic SQL (if,where, trim) (37강)
+
+목록을 가져오는 쿼리를 다시 가져올것이다.
+우리가 지난번에 list를 구현했는데 getList인데 이것을 변경.
+
+<select id="getViewList" resultType="com.newlecture.springweb.entity.NoticeView">
+			select * from noticeview 
+			where ${field} like '%${query}%'
+			order by regdate desc
+			limit #{offset}, #{size}	
+	</select>
+
+where절이 들어가있는데 문제가 있다.
+
+List<NoticeView> getViewList(int offset, int size, String field, String query);
+
+int offset, int size
+이것은 페이지를 위한것이고
+String field, String query
+이것은 검색을 위한 것인데
+우리가 목록을 가져올때는 관리자가 모든 내용을 봐야하지만, 일반 사용자는 모든 내용을 보면 안된다.
+공개하는 내용만 볼수있어야 함
+따라서 하나의 옵션을 더 넣어줘야 한다
+
+List<NoticeView> getViewList(int offset, int size, String field, String query,boolean pub);
+boolean pub을 넣어줌.
+pub가 true일 경우만 공개, false는 비공개로.
+
+자 조건절이 더 복잡해질것같다.
+ and를 써줘서 pub가 어떻게 될것이냐를 포함해줘야 함.
+만약 우리가 이 쿼리를 호출할때 query에 들어갈 내용이
+빈문자나 null이면 특별히 검색할 것이 없다는것.
+그럼 이녀석을 뺴줘야 하는데, 뺄수있도록 하는 
+조건처리 도구가 mybatis에는 있다.
+지난번 mybatis 페이지에 if문을 사용한다.
+
+<select id="getViewList" resultType="com.newlecture.springweb.entity.NoticeView">
+			select * from noticeview 
+			where 
+			<if test="query != null or query != ''">
+			${field} like '%${query}%'
+			</if>
+			and pub = #{pub}
+			order by regdate desc
+			limit #{offset}, #{size}	
+	</select>
+
+이렇게 설계해줄수있다.
+근데 문제가 있다.
+query가 진짜로 null이나 공백이 들어가면
+if문이 빠져버리면 where 절 뒤에 바로 and가 들어가버리는 이상한 문법이 완성된다.
+그럼 이걸 어떻게 해결해야 될까 ?
+이럴때는 where라는 태그가 있다.
+마찬가지로 Mybatis 페이지로.
+where태그로 조건절을 감싸면 안쪽에서 조건들이 있는데
+단 하나라도 추가되는 내용에 포함되면 where가 포함되는것이고 모든 조건에서 참이 나오면 where가 포함되지 않는다.
+
+			<where> 
+			<if test="query != null or query != ''">
+			${field} like '%${query}%'
+			</if>
+			and pub = #{pub}
+			</where>
+
+이런식으로 감싸주면 if가 사라진다 하더라도
+where절은 and를 지워버려서 문제가 없다.
+근데 where라는 것이 예상했던 것처럼 동작하지 않는다면
+trim이라는 것을 사용해줄수 있다.
+
+	<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="query != null or query != ''">
+			${field} like '%${query}%'
+			</if>
+			and pub = #{pub}
+			</trim>
+
+이렇게 where을 지우고 trim을 넣어줬음.
+무슨 차이냐면, trim안쪽에서 구문이 포함되면
+where가 붙는다.
+그리고 구문에서 시작되는 첫 글자가 and 혹은 or이면
+and나 or 대신 where로 바꾸겠다는 얘기이다.
+즉 if가 사라지면 and 혹은 or을 where로 바꾸겠다는 얘기.
+
+where를 써도되고 trim을 이용해서 동적으로 쿼리를 만들수도 있다.
+대략적으로 이제 모두 구현이 되었다.
+다음 시간에는 쿼리에서 컬럼의 이름이 mapping이 제대로 안될 경우 mapping되는 부분에서 문제가 발생하면 데이터가 담겨지지않는 컬럼이 생길수있다.
+XML에서는 컬럼 매핑을 어떻게 하냐 ?
+이 부분을 마지막으로 MyBatis 일단락을 짓겠다.
+
+
+
+
 
