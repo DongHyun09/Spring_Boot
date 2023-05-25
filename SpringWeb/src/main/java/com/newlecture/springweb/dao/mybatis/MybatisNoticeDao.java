@@ -28,9 +28,9 @@ public class MybatisNoticeDao implements NoticeDao{
 	}
 
 	@Override
-	public int getCount(String field, String query) {
+	public int getCount(String field, String query, boolean pub) {
 	
-		return mapper.getCount(field, query);
+		return mapper.getCount(field, query, pub);
 	}
 
 	@Override

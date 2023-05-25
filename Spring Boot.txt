@@ -1694,7 +1694,166 @@ Constructor Injection으로 바꿨기때문에 Test를 한번 해보자.
 다음 강의때 알아볼것이다.
 
 
+41. Service 계층 구현하기 (41강 fin)
+
+dao라는 객체를 가지고 service 부분들을 마무리 지을것이다.
+
+
+#NoticeServiceImp, NoticeService 수정
+
+0.ViewList (페이지,검색 요청 수정)
+ViewList pub가 추가 됨.
+각 인자로 boolean pub 추가.
+
+
+	// --페이지를 요청할 때
+	List<NoticeView> getViewList(boolean pub);
+
+	// --검색을 요청할 때
+	List<NoticeView> getViewList(String field, String query, boolean pub);
+
+	// -페이지를 요청할 때
+	List<NoticeView> getViewList(int page, String field, String query, boolean pub);
+
+
+imp에도 각 추가 해줌.
+
+#updateAll 수정 (공개와 비공개)
+
+	@Override
+	public int updatePubAll(int[] pubIds, int[] closeIds) {
+		// TODO Auto-generated method stub
+		int result = 0;
+		result += noticeDao.updatePubAll(pubIds,true);
+		result += noticeDao.updatePubAll(closeIds,false);
+		 return result;
+	}
+
+1개 이상이 되었다하면 return값으로 전달.
+
+
+service는 이걸로 마무리.
+
+이 service도 test.
+Count를 테스트할것이다.
+
+#Service에서 junit test 생성 후 작업.
+
+@SpringBootTest
+class NoticeServiceImpTest {
+	
+	@Autowired
+	private NoticeService service;
+		
+	@Test
+	void test() {
+		System.out.println(service.getCount());
+	}
+
+}
+
+그런데 getCount가 출력되지 않는다.
+getCount가 문제를 갖고있다는 얘기가 된다.
+근데, 이것이 service라는 것을 통해 getCount를 했으니
+service가 문제인지, dao가 문제인지 찾기가 쉽지가 않다.
+그래서 단위테스트를 중요하게 생각한다.
+제일 말단에 있는 그 녀석 하나를 만들었으면 그 녀석 하나 하나의 함수가 올바르게 동작하는 완벽히 테스트하고 또 얹어서 테스트해야된다.
+일단 Dao의 문제이다.
+
+
+#getCount mapper 수정
+ Mapper에서 getCount.
+select구문은 반드시 그 녀석이 가지고있는 값을
+반환하게 되어있는데, getCount는 
+
+<select id="getCount">
+	select count(id) count from notice 
+	where ${field} like '%${query}%'
+</select>
+얘는 단일값을 반환하고있다.
+getCount라는 녀석의 interface를 보면 Integer를 반환하고있다. 
+Dao -> int getCount(String field, String query);
+따라서 resultType을 꼭 써줘야 된다.
+
+<select id="getCount" resultType="int">
+	select count(id) count from notice 
+	where ${field} like '%${query}%'
+</select>
+
+그럼 이제, 정상적으로 test결과가 나오는것을 볼수 있을것이다.
+
+정상적으로 잘 나오는데, 이거가지고 잘됐다 ! 하고 
+넘어가면 안된다.
+이녀석도 boolean pub를 추가 해줘야 한다.
+
+NoticeDao에 getCount에서 boolean pub 추가.
+MybatisNoticeDao에서도 boolean pub 추가.
+NoticeService에서도 추가.
+NoticeServiceImpl에서도 추가.
+
+impl에서
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return getCount("title", "", true);
+	}
+
+
+이것은 공개된 것만 받겠다는 의미.
+
+이 상태에서 mapper에서 pub라는 옵션을 사용하는 
+꼴로 바꿔야 된다.
+
+
+NoticeDaoMapper.xml에서
+
+<select id="getCount" resultType="int">
+		select count(id) count from notice
+		where ${field} like '%${query}%'
+	</select>
+
+이녀석을
 
 
 
+<select id="getCount" resultType="int">
+select count(id) count from notice
+<where>	
+<if test="query != null and query != ''">
+	${field} like '%${query}%'
+</if>
+	and pub = #{pub}		
+</where>
+</select>
 
+이렇게 바꿔준다.
+
+공개된것이 하나도 없다고 보여줌 
+결과 : 0
+
+그럼 실제로 공개된것이 없는지 select해보면
+ㅇㅇ 없다.
+그럼 테스트를 해보기 위해
+select * from notice
+pub = 1이 되도록 mysql workbench에서 수정해보자
+pub는 나올떄는 1로 나오지만 값은 TRUE로 바꿔줘야 됨.
+수정하고 apply.
+
+1이 정상적으로 출력되는 것을 볼수있다.
+
+
+to do)
+jpa, 타임리프, gradle, Log4j
+
+
+추가 코멘트 댓글중)
+
+
+ 
+
+타임리프 혼자 해보실수 있어요!
+spring-boot 패키지에 thymeleaf 추가하시고 return되는 모델명이랑 똑같이 spring expression language(spEL) 사용하시면 됩니다.
+spEL은 이전 tiles강의에 쓴 JSTL이랑 거의 동일하기 때문에 spEL 구글링하시면 금방해요
+만약 layout(header/footer)구현하시려면 1)thymeleaf-layout-dialect 를 추가하시고 2)config 클래스 만드시고 @Configuration 어노테이션 추가하시고 3)@Bean 객체 추가해서 LayDialect 객체 추가하시면 공통화 작업이 가능합니다.
+(html 부분의 공통화 부분은 구글링하시면 많이 나오나, bean 객체 추가는 나오지 않아 적어드립니다)
