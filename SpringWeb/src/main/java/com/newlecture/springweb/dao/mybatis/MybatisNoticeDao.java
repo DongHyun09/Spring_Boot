@@ -3,6 +3,7 @@ package com.newlecture.springweb.dao.mybatis;
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.newlecture.springweb.dao.NoticeDao;
@@ -13,19 +14,23 @@ import com.newlecture.springweb.entity.NoticeView;
 @Repository
 public class MybatisNoticeDao implements NoticeDao{
 	
+	private NoticeDao mapper;
 	
-	private SqlSession sqlSession;
+	@Autowired
+	public MybatisNoticeDao(SqlSession sqlSessionl) {
+		
+	}
 	
 	@Override
 	public List<NoticeView> getViewList(int offset, int size, String field, String query, boolean pub) {
-		NoticeDao noticeDao= sqlSession.getMapper(NoticeDao.class);
-		return noticeDao.getViewList(offset, size, field, query, pub);
+		
+		return mapper.getViewList(offset, size, field, query, pub);
 	}
 
 	@Override
 	public int getCount(String field, String query) {
-		// TODO Auto-generated method stub
-		return 0;
+	
+		return mapper.getCount(field, query);
 	}
 
 	@Override

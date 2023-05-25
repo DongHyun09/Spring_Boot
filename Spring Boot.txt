@@ -1587,6 +1587,35 @@ mybatis는 overoad같은 기능을 지원하지 않는다.
 일단 여기까지 구현했는데 유지보수할 때 좀 번잡하게 느껴질수있다.
 
 
+40.Dao 구현체 직접 구현하기 (SqlSession Contstructor Injection) (40강)
 
+	@Override
+	public int getCount(String field, String query) {
+		NoticeDao noticeDao= sqlSession.getMapper(NoticeDao.class);
+		return noticeDao.getCount(field, query);
+	}
 
+이녀석도 추가로 만들어줬는데,문제는 이 코드가 구현되는 곳을 보면
+
+NoticeDao noticeDao= sqlSession.getMapper(NoticeDao.class);
+이 녀석이 계속 반복되는데
+당연하게도, 이것을 멤버로 두면 된다.
+
+private NoticeDao mapper;
+
+그리고
+
+	public MybatisNoticeDao() {
+		// TODO Auto-generated constructor stub
+	}
+
+기본 생성자를 하나 추가해준다.
+그리고 @Autowired를 
+
+	@Autowired
+	public MybatisNoticeDao() {
+		// TODO Auto-generated constructor stub
+	}
+
+이 녀석으로 가져온다.
 
