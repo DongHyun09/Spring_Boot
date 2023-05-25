@@ -1296,3 +1296,167 @@ XML에서는 컬럼 매핑을 어떻게 하냐 ?
 
 
 
+38. Mapper 객체 단위 Test with jUnit5 (38강)
+
+단위 Test하면 떠오르는 framework jUnit.
+Test할때는 Mybatis의 기능을 테스트 해보는 것이다
+Spring Boot에서 단위 테스트를 할수있도록 Autowired가 가능한 Lib를 제공하고 있다.
+@MybatisTest Annotation을 씀. 
+
+그럼 한번 해보자.
+
+https://mybatis.org/spring-boot-starter/mybatis-spring-boot-test-autoconfigure/index.html
+
+그 다음으로 NoticeDao라는 녀석이 정상적으로 동작하는지 알아보기 위해
+이녀석의 기능을 호출하는 코드를 넣을 것이다.
+우리가 eclipse에 포함된 junit의 힘을 빌리면 쉽게 코드를 만들수있다.
+우리가 테스트하고자하는 
+
+# noticeDao를 선택 -> new -> Junit Test Case
+
+class NoticeDaoTest {
+
+	@Test
+	void test() {
+		fail("Not yet implemented");
+	}
+
+}
+
+이런 형태의 class와 함수가 만들어짐.
+
+실행할때는 파일내에서 오른쪽 클릭후 
+# Run as -> junit test 
+실행결과가 나오는데, fail이라는 함수에 대한 내용은 단위테스트라는 과정에서 따로 자세히 알려줄 것이라는 뉴렉쌤.
+
+우리가 Mapper를 만들면서 오류가있는 내용을 담아놨다.
+이걸 어떻게 test해볼 것이냐.
+test는 그냥 함수라고 보면 된다.
+
+@Test
+	void test() {
+		System.out.println("Hello Test");
+	}
+
+이 녀석을 찍어줘도 정상적으로 잘 출력이 된다./
+
+class NoticeDaoTest {
+
+	private NoticeDao noticeDao;
+	@Test
+	void test() {
+		List<NoticeView> list = noticeDao.getViewList(0, 1, "title", "", false);
+		
+		System.out.println(list.get(0));
+	}
+}
+
+
+이렇게 돌리면 정상적으로 가져오지 못하고 오류가 난다.
+왜냐, 오토와이어드 하려면 스프링이라는 녀석이 로드가 돼서
+IoC컨테이너를 만들어서 Mapper를 담아줘야 되는데 그런 작업을 전혀 하고있지 않아서
+Null poion Exception이 발생할 것이다
+이 떄 써야되는게 
+@MybatisTest 와 @Autowired
+
+이렇게 돌려주면 오류가 뜬다.
+이 오류는 Test하기 위한 데이터와 실제 데이터와 다를 수가 있는데
+혹시 따로 마련했느냐 ? 는 것인데
+그냥 그것을 쓰겠다는 어노테이션을 쓰면 된다.
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+데이터 베이스를 replace하지 않겠다는 것. (그냥 그거 쓸게요)
+
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@MybatisTest
+class NoticeDaoTest {
+	
+	@Autowired
+	private NoticeDao noticeDao;
+	
+	@Test
+	void test() {
+		List<NoticeView> list = noticeDao.getViewList(0, 1, "title", "", false);
+		
+		System.out.println(list.get(0));
+	}
+}
+
+
+
+이렇게 해주고 돌리면
+우리가 출력하고자 하는 내용이 잘 나와준다.
+그럼 진짜 잘된것인가 ?
+그것은 아니다.
+
+우리가
+<select id="getViewList" resultType="com.newlecture.springweb.entity.NoticeView">
+이 녀석을 작업할 때 
+${field} like '%${query}%'
+이것이 지금 빠지는지 안빠지는지 봐야될것같다.
+
+void test() {
+		List<NoticeView> list = 
+			noticeDao.getViewList(0, 1, "title", null, false);
+
+이렇게 다시 한번 Test !
+잘 출력된다.
+그럼 진짜 빠진것인가 ?
+
+noticeDao.getViewList(0, 1, null, null, false);
+이렇게 보내줬더니 Exception이 발생했다. 내용을 보면,
+
+select * from noticeview           WHERE like '%%'        and pub = ?  
+
+이렇게 나오는데
+where 뒤에 %% 이것과 비교되는 컬럼이 있어야되는데 빠져있다.
+왜 이렇게 된것이냐면, 우리가 예상했던 대로는 되지 않았다.
+하나하나 구현해놓고 test하지 않으면 이렇게 잘 모른다.
+Junit을 통해서 간단히 이런식으로 테스트를 할 수 있다.
+어쨌든, 뭐가 잘 못된것이냐면 
+<if test="query != null or query != ''">
+여기서  or가 잘못된것이다.
+and를 넣어줘야 함. 당연하게도.
+<if test="query != null and query != ''">
+
+단일테스트를 하기 위해 이런식으로 테스트를 해보면서 가는게 좋다.
+
+
+우리가 notice라는 녀석일 이용해 공지사항을 출력하고있는데,
+여기서 우리는 noticeview를 이용하여 공지사항을 보여주고있다.
+컬럼을 보면 memberId, memeberName 이런 것들이
+언더바로 구분되어있다면 ? (지금은 자바와 똑같은 엔티티로 동일하게 되어있는데)
+이것을 언더바로 바꾼다면 컬럼이 매핑되지않아서 결과가 정상적으로 담아지지않는 
+결과가 있었다.
+이 상태로 Test를 진행하게 된다면, 
+NoticeView [memberId=null]이 뜬다.
+이게 db결과 집합에대한 컬럼과 우리가 갖고있는 entity의 setter와 일치하지않는 경우
+담아지지 않는다.
+이럴 경우 어떻게 매핑할거냐 ?
+
+<resultMap type="" id="">
+</resultMap>
+
+<select id="getViewList" resultType="com.newlecture.springweb.entity.NoticeView">
+여기서 우리가 가져오는 결과집합이 있는데 (resultType="~~~~")
+
+ <resultMap type="com.newlecture.springweb.entity.NoticeView" id="">
+	<result property="memberName" column="member_name" />
+</resultMap>
+
+mapper에서 이렇게 매핑을 해주면 된다.
+
+자 이제, 여기서 이런 mapping관계로 결과집합을 만든다고 한다면,
+<select id="getViewList" resultType="com.newlecture.springweb.entity.NoticeView">
+resultType을 쓸것이 아니라, 
+
+ <resultMap type="com.newlecture.springweb.entity.NoticeView" id="noticeViewMap">
+	<result property="memberName" column="member_name" />
+</resultMap>
+
+
+여기에서, id를
+<select id="getViewList" resultMap="noticeViewMap">
+
+resultMap에서 써준다. 결과집합을 저녀석으로 써주겠다는 것이다.
+얘를 가져올때 type이 아닌 map을 가져와서 차이가 나는것을 커버해줄수있다.
+
