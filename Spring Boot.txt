@@ -1460,3 +1460,133 @@ resultType을 쓸것이 아니라,
 resultMap에서 써준다. 결과집합을 저녀석으로 써주겠다는 것이다.
 얘를 가져올때 type이 아닌 map을 가져와서 차이가 나는것을 커버해줄수있다.
 
+
+39. Dao 구현체 직접 구현하기 SqlSession (39강)
+
+우리는 mapper객체를 만들어서 사용했는데, 그때 mapper를 만들어넣는 컨테이너가 존재하게 된다. 그때 이것을 읽어서 mapper container를 만들어내는 주체가 SqlSessionFactory라는 녀석이다. 원래는 SqlSession이라는 도구를 이용해서 container에 담겨져있는 mapper객체를 꺼내서 Dao의 메서드를 구현하면서 mapper객체를 사용하면서 구현하는것이다.
+근데, 스프링 boot로 넘어오면서 이런 dao객체 자체를 생성하지 않아도
+이녀석을 바로 IoC컨테이너에 담을수있는 @Mapper가 존재한다.
+사실 mybatis라는 녀석은 dao를 구현하기 위한 좋은 도구인데 sqlsession이 dao를 대신하는 
+녀석은 아니다.
+
+noticeDao(mapper)라는 녀석은 interface를 구현하겠다고 NoticeDao를 매핑해놓은것이다.
+NoticeDao라는 인터페이스는 있으나, 구현체는 없고, @Mapper를 붙이고 오토와이어 해서 쓰겠다는, 편리하게 스프링 부트에 포함되어있다.
+그런데 우리는 조금 불편하게 갈 생각이다.
+
+@Mapper라는 녀석은 Mybatis에 너무 강하게 결합되어있다.
+@Mapper를 지울 생각이다.
+이것을 빼버리면 mybatis에서 sessionfactory에서 만들어진 mapper객체들이 담겨져있는 공간이 있다. IoC컨테이너와는 상관X
+이 객체를 IoC컨테이너에 담아놔야 컨트롤러든, service든 쓸수있다.
+이것을 mapper와 연관되어있는 @Mapper는 스프링이 읽어서 이것을 스프링 IoC컨테이너에 담아준다.
+우리가 이것을 지우겠다는 뜻이다.
+그럼 더이상 컨트롤러든 서비스든 Mapper라는 녀석을 직접 사용할수 없다.
+Mapper라는 녀석을 사용하지않고 Dao라는 녀석을 직접 사용해보도록 하겠다.
+
+# 1. noticedao 패키지 밑에 mybatis 패키지를 만들고
+MybatisNoticeDao 파일을 생성
+
+내가 구현할 녀석이 NoticeDao다 라는것을 선언.
+public class MybatisNoticeDao implements NoticeDao{
+그리고 MybatisNoticeDao에 마우스를 가져다대서 자동으로 구현체를 준비하도록 한다.
+
+구현체라는 녀석을 직접 스프링에서 가져다 쓸수있도록 하기 위해 
+@Repository라는 녀석을 쓸것이다.
+
+
+@Repository
+public class MybatisNoticeDao implements NoticeDao{
+
+이렇게 함으로써 IoC컨테이너에 담을 수 있게되었다.
+이것을 구현할때는 Mapper객체를 직접 얻어서 구현할것이다.
+SqlSession을 이용해서 얻어낼수있고, dao에서는 sqlsession이 준비되어있어야 한다.
+Sqlsession은 lib에 의해 IoC컨테이너에 담겨져있다.
+이녀석을 통해 mapper객체를 얻어서 dao를 구현할것이다.
+
+mapper객체를 얻을수있도록하는
+
+private SqlSession sqlSession; 을 준비
+IoC에 있는 녀석이니
+@Autowired를 써서 갖다 쓸수있도록 하자.
+
+@Repository
+public class MybatisNoticeDao implements NoticeDao{
+
+@Autowired
+private SqlSession sqlSession;
+
+	@Override
+	public List<NoticeView> getViewList(int offset, int size, String field, String query, boolean pub) {
+
+		NoticeDao noticeDao = sqlSession.getMapper(NoticeDao.class);
+		return noticeDao.getViewList(offset, size, field, query, pub);
+	}
+}
+
+
+sqlSession을 통해 mapper를 얻는 getMapper NoticeDao라는 class정보를 주며,
+이것의 구현체를 꺼내 달라.
+NoticeDao라는 녀석의 구현체를 통해 getViewList를 그대로 전달.
+
+
+# 2. 이녀석을 test해보기 위해 mybatisnoticedao에서 junit을 생성해줌.
+
+class MybatisNoticeDaoTest {
+	
+	@Autowired
+	private NoticeDao noticeDao;
+	
+	@Test
+	void test() {
+		List<NoticeView> list = noticeDao.getViewList(0, 1, null, null, false);
+		System.out.println(list.get(0));
+	}
+
+}
+
+데이터는 하나만 가져오고 나머지는 기본값만 채우도록 해봤다.
+0번째만 가지고 테스트 해보겠다.
+이 상태에서 실행하면 실행이 안된다.
+당연히.
+가능하게 하기 위해
+
+
+@SpringBootTest
+class MybatisNoticeDaoTest {
+	
+	@Autowired
+	private NoticeDao noticeDao;
+	
+	@Test
+	void test() {
+		List<NoticeView> list = noticeDao.getViewList(0, 1, null, null, false);
+		System.out.println(list.get(0));
+	}
+
+}
+
+
+@SpringBootTest
+
+이것만 있으면 된다.
+
+실행해보면, 데이터를 정상적으로 잘 가져오고있다.
+
+이렇게 직접 Dao를 구현해봤다.
+장점으로는 interface라는 녀석이 mybatis라는 녀석에 종속되어있는건 좋은건 아니다.
+다음에 spirng을 일단락을 짓고 jpa를 뒤에 붙일것.
+
+만약 다른 기술이라고하면,
+
+일단은
+
+#jpa를 dao밑 jpa 패키지에 또 만들어 줌.
+구현체를 구현하는 기술을 좀 달리해서 jpa, Mybatis로 하다가 dao에 덮어쓰기를 할수도있는 것인데, interface는 유지된 상태에서 구현체를 바꿀수있는 방법을 알아야된다.
+mybatis는 overoad같은 기능을 지원하지 않는다.
+따라서, overoad기능을 하려면 일일이 코드를 굳이 하나씩 더 붙여서 
+달리 만들어줘야된다.
+일단 여기까지 구현했는데 유지보수할 때 좀 번잡하게 느껴질수있다.
+
+
+
+
+
