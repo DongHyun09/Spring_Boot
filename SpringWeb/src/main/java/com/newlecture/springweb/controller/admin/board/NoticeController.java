@@ -21,7 +21,7 @@ public class NoticeController {
 		@RequestMapping("list")
 		public String list() {
 			
-			List<NoticeView> list = service.getList();
+			List<NoticeView> list = service.getViewList();
 			
 			return "admin.board.notice.list";
 		}

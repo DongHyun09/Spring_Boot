@@ -107,4 +107,10 @@ public class NoticeServiceImp implements NoticeService{
 		return noticeDao.insert(notice);
 	}
 
+	@Override
+	public List<NoticeView> getViewList(int page, String query, String query2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -11,7 +11,7 @@ public interface NoticeService {
 	List<NoticeView> getViewList(boolean pub);
 
 	// --검색을 요청할 때
-	List<NoticeView> getViewList(String field, String query, boolean pub);
+	List<NoticeView> getViewList(int page, String query, String query2);
 
 	// -페이지를 요청할 때
 	List<NoticeView> getViewList(int page, String field, String query, boolean pub);
@@ -39,5 +39,7 @@ public interface NoticeService {
 	int delete(int id);
 
 	int insert(Notice notice);
+
+	List<NoticeView> getViewList(String field, String query, boolean pub);
 
 }
