@@ -31,9 +31,15 @@ public class PeopleServiceImp implements PeopleService{
 	}
 
 	@Override
-	public int getNum() {
-		int num = peopdao.getNum() + 1;
+	public int getMaxNum() {
+		int num = peopdao.getMaxNum() + 1;
 		return num;
+	}
+
+	@Override
+	public PeopleInfo getNumPeop(int num) {
+		// TODO Auto-generated method stub
+		return peopdao.getNumPeop(num);
 	}
 
 //	@Override

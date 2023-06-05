@@ -6,10 +6,16 @@
 <select id="getPeopList" resultType="com.kdh.web.entity.PeopleInfo">
 select * from human_tbl
 </select>
-<select id="getNum" resultType="int">
+<select id="getMaxNum" resultType="int">
 select max(num) from human_tbl
 </select>
-<insert id="putAllPeop">
+<select id="getNumPeop" resultType="com.kdh.web.entity.PeopleInfo">
+select * from human_tbl
+<where>
+ num = #{num}
+ </where>
+</select>
+<insert id="putAllPeop" parameterType="com.kdh.web.entity.PeopleInfo">
 insert into human_tbl 
 values(#{num},#{name},#{job},#{relation},#{age},#{dv},#{forme},#{forme2})
 </insert>

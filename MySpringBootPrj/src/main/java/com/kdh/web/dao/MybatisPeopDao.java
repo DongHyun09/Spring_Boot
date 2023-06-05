@@ -33,9 +33,15 @@ public class MybatisPeopDao implements PeopDao {
 	}
 
 	@Override
-	public int getNum() {
+	public int getMaxNum() {
 		// TODO Auto-generated method stub
-		return mapper.getNum();
+		return mapper.getMaxNum();
+	}
+
+	@Override
+	public PeopleInfo getNumPeop(int num) {
+		// TODO Auto-generated method stub
+		return mapper.getNumPeop(num);
 	}
 
 //	@Override

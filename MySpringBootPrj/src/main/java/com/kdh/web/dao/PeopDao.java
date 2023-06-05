@@ -11,7 +11,8 @@ public interface PeopDao {
 	
 	List<PeopleInfo> getPeopList();
 	int putAllPeop(PeopleInfo peopleinfo);
-	int getNum();
+	int getMaxNum();
+	PeopleInfo getNumPeop(int num);
 //	int getCount();
 //	PeopleInfo getInfo(int num);
 	
