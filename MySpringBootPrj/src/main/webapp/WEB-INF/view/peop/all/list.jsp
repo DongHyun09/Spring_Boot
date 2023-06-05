@@ -21,14 +21,14 @@
         </tr>
     </thead>
     <tbody>
-        <c:forEach var="list" items="${List}">
+        <c:forEach var="p" items="${List}">
                 <tr>
-                	<td>${list.dv}</td>
-                    <td><%-- <a href="detail?num=${list.num}"> --%>${list.name}<!-- </a> --></td>
-                    <td>${list.age}</td>
-                    <td>${list.job}</td>
-                    <td>${list.relation}</td>
-                    <td>${list.forme}</td>
+                	<td>${p.dv}</td>
+                    <td><%-- <a href="detail?num=${list.num}"> --%>${p.name}<!-- </a> --></td>
+                    <td>${p.age}</td>
+                    <td>${p.job}</td>
+                    <td>${p.relation}</td>
+                    <td>${p.forme}</td>
                 </tr>
         </c:forEach>
     </tbody>

@@ -10,6 +10,6 @@ import com.kdh.web.entity.PeopleInfo;
 public interface PeopDao {
 	
 	List<PeopleInfo> getPeopList();
-	int getCount();
-	PeopleInfo getInfo(int num);
+//	int getCount();
+//	PeopleInfo getInfo(int num);
 }

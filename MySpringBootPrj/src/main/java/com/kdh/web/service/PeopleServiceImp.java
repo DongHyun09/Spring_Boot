@@ -24,10 +24,10 @@ public class PeopleServiceImp implements PeopleService{
 		return peopdao.getPeopList();
 	}
 
-	@Override
-	public int getCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+//	@Override
+//	public int getCount() {
+//		// TODO Auto-generated method stub
+//		return peopdao.getCount();
+//	}
 
 }
