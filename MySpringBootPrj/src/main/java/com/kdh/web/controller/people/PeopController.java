@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.kdh.web.entity.PeopleInfo;
@@ -24,5 +26,16 @@ public class PeopController {
 		List<PeopleInfo> list = service.getPeopList();
 		model.addAttribute("List" , list);
 		return "peop.all.list";
+	}
+	@GetMapping("add")
+	public String add(Model model) {
+		 int num = service.getNum();
+		 model.addAttribute("NUM", num);
+		return "peop.all.add";
+	}
+	@PostMapping("add")
+	public String add2(@ModelAttribute PeopleInfo pe){
+		service.putAllPeop(pe);
+		return "redirect:list";
 	}
 }

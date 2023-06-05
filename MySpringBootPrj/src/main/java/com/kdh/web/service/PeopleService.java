@@ -8,5 +8,7 @@ public interface PeopleService {
 	
 	//목록 요청
 	List<PeopleInfo> getPeopList();
+	int putAllPeop(PeopleInfo peopleinfo);
+	int getNum();
 //	int getCount();
 }

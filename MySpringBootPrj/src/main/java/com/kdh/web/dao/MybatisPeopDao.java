@@ -26,6 +26,18 @@ public class MybatisPeopDao implements PeopDao {
 		return mapper.getPeopList();
 	}
 
+	@Override
+	public int putAllPeop(PeopleInfo peopleinfo) {
+		// TODO Auto-generated method stub
+		return mapper.putAllPeop(peopleinfo);
+	}
+
+	@Override
+	public int getNum() {
+		// TODO Auto-generated method stub
+		return mapper.getNum();
+	}
+
 //	@Override
 //	public int getCount() {
 //		// TODO Auto-generated method stub

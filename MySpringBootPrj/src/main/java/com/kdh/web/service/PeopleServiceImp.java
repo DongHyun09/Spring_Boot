@@ -24,6 +24,18 @@ public class PeopleServiceImp implements PeopleService{
 		return peopdao.getPeopList();
 	}
 
+	@Override
+	public int putAllPeop(PeopleInfo peopleinfo) {
+		// TODO Auto-generated method stub
+		return peopdao.putAllPeop(peopleinfo);
+	}
+
+	@Override
+	public int getNum() {
+		int num = peopdao.getNum() + 1;
+		return num;
+	}
+
 //	@Override
 //	public int getCount() {
 //		// TODO Auto-generated method stub

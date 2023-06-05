@@ -24,7 +24,7 @@
         <c:forEach var="p" items="${List}">
                 <tr>
                 	<td>${p.dv}</td>
-                    <td><%-- <a href="detail?num=${list.num}"> --%>${p.name}<!-- </a> --></td>
+                    <td><a href="detail?num=${list.num}">${p.name}<!-- </a> --></td>
                     <td>${p.age}</td>
                     <td>${p.job}</td>
                     <td>${p.relation}</td>
