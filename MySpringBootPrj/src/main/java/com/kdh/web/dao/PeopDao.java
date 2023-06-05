@@ -13,7 +13,7 @@ public interface PeopDao {
 	int putAllPeop(PeopleInfo peopleinfo);
 	int getMaxNum();
 	PeopleInfo getNumPeop(int num);
-//	int getCount();
-//	PeopleInfo getInfo(int num);
+	int updatePeop(PeopleInfo p);
+	int deletePeop(int num);
 	
 }

@@ -11,5 +11,6 @@ public interface PeopleService {
 	int putAllPeop(PeopleInfo peopleinfo);
 	int getMaxNum();
 	PeopleInfo getNumPeop(int num);
-//	int getCount();
+	int updatePeop(PeopleInfo p);
+	int deletePeop(int num);
 }

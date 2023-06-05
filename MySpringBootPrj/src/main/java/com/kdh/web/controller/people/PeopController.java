@@ -21,6 +21,11 @@ public class PeopController {
 	@Autowired
 	private PeopleService service;
 	
+	private void detailupdate(int num, Model model) {
+		  PeopleInfo people = service.getNumPeop(num);
+		   model.addAttribute("People", people);
+	}
+
 	@GetMapping("list")
 	public String list(Model model) {
 		
@@ -39,10 +44,25 @@ public class PeopController {
 		service.putAllPeop(pe);
 		return "redirect:list";
 	}
+
 	@GetMapping("detail")
 	public String detail(@RequestParam("num") int num, Model model) {
-	    PeopleInfo people = service.getNumPeop(num);
-	    model.addAttribute("People", people);
+			detailupdate(num,model);
 	    return "peop.all.detail";
+	}
+	@GetMapping("update")
+	public String update(@RequestParam("num") int num, Model model) {
+			detailupdate(num,model);
+		return "peop.all.update";
+	}
+	@PostMapping("update")
+	public String update(@ModelAttribute PeopleInfo p) {
+		service.updatePeop(p);
+		return "redirect:list";
+	}
+	@GetMapping("delete")
+	public String delete(@RequestParam("num") int num) {
+	    service.deletePeop(num);
+	    return "redirect:list";
 	}
 }

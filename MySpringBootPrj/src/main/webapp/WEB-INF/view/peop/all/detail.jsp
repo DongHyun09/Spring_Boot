@@ -31,3 +31,4 @@
 </tr>
 </table>
 <a href="update?num=${People.num}">수정</a>
+<a href="delete?num=${People.num}">삭제</a>

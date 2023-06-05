@@ -44,17 +44,16 @@ public class MybatisPeopDao implements PeopDao {
 		return mapper.getNumPeop(num);
 	}
 
-//	@Override
-//	public int getCount() {
-//		// TODO Auto-generated method stub
-//		return mapper.getCount();
-//	}
-//
-//	@Override
-//	public PeopleInfo getInfo(int num) {
-//		// TODO Auto-generated method stub
-//		return mapper.getInfo(num);
-//		
-//	}
+	@Override
+	public int updatePeop(PeopleInfo p) {
+		// TODO Auto-generated method stub
+		return mapper.updatePeop(p);
+	}
+
+	@Override
+	public int deletePeop(int num) {
+		// TODO Auto-generated method stub
+		return mapper.deletePeop(num);
+	}
 
 }

@@ -42,10 +42,16 @@ public class PeopleServiceImp implements PeopleService{
 		return peopdao.getNumPeop(num);
 	}
 
-//	@Override
-//	public int getCount() {
-//		// TODO Auto-generated method stub
-//		return peopdao.getCount();
-//	}
+	@Override
+	public int updatePeop(PeopleInfo p) {
+		// TODO Auto-generated method stub
+		return peopdao.updatePeop(p);
+	}
+
+	@Override
+	public int deletePeop(int num) {
+		// TODO Auto-generated method stub
+		return peopdao.deletePeop(num);
+	}
 
 }

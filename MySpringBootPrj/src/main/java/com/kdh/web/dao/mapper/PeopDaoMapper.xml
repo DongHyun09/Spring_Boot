@@ -19,4 +19,18 @@ select * from human_tbl
 insert into human_tbl 
 values(#{num},#{name},#{job},#{relation},#{age},#{dv},#{forme},#{forme2})
 </insert>
+<update id="updatePeop" parameterType="com.kdh.web.entity.PeopleInfo">
+update human_tbl set name=#{name}, job = #{job},
+relation = #{relation}, age = #{age}, dv = #{dv}, 
+forme = #{forme}, forme2 = #{forme2}
+<where>
+num = #{num}
+</where>
+</update>
+<delete id="deletePeop" parameterType="int">
+delete from human_tbl 
+<where>
+num = #{num}
+</where>
+</delete>
 </mapper>
