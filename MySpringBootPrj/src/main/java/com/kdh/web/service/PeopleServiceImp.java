@@ -34,9 +34,9 @@ public class PeopleServiceImp implements PeopleService{
 	public Integer getMaxNum() {
 		Integer num = peopdao.getMaxNum();
 	    if (num == null) {
-	        num = 1; // 기본값으로 1 설정
+	        num = 1; //Null.
 	    } else {
-	        num += 1; // 최대 번호에 1을 더하여 새로운 번호 생성
+	        num += 1; //추가시.
 	    }
 		return num;
 	}
