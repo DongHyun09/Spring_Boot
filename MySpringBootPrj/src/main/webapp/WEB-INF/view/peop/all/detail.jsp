@@ -31,4 +31,4 @@
 </tr>
 </table>
 <a href="update?num=${People.num}">수정</a>
-<a href="delete?num=${People.num}">삭제</a>
+<a href="delete?num=${People.num}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>

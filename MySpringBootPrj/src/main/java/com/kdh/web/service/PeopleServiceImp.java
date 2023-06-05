@@ -20,7 +20,7 @@ public class PeopleServiceImp implements PeopleService{
 	
 	@Override
 	public List<PeopleInfo> getPeopList() {
-		// TODO Auto-generated method stub
+		
 		return peopdao.getPeopList();
 	}
 
