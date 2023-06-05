@@ -9,7 +9,7 @@ public interface PeopleService {
 	//목록 요청
 	List<PeopleInfo> getPeopList();
 	int putAllPeop(PeopleInfo peopleinfo);
-	int getMaxNum();
+	Integer getMaxNum();
 	PeopleInfo getNumPeop(int num);
 	int updatePeop(PeopleInfo p);
 	int deletePeop(int num);

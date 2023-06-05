@@ -31,8 +31,13 @@ public class PeopleServiceImp implements PeopleService{
 	}
 
 	@Override
-	public int getMaxNum() {
-		int num = peopdao.getMaxNum() + 1;
+	public Integer getMaxNum() {
+		Integer num = peopdao.getMaxNum();
+	    if (num == null) {
+	        num = 1; // 기본값으로 1 설정
+	    } else {
+	        num += 1; // 최대 번호에 1을 더하여 새로운 번호 생성
+	    }
 		return num;
 	}
 
