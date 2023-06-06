@@ -41,5 +41,15 @@
 <td><textarea name="forme2"></textarea></td>          
 </tr>
 </table>
-    <button type="submit">삽입</button>
+    <button type="submit" onClick="sucfail()">삽입</button>
 </form>
+<script>
+function sucfail() {
+        var succsess = confirm("삽입하시겠습니까?");
+        if (succsess) {
+            alert("삽입이 성공하였습니다.");
+        } else {
+            alert("삽입이 실패했습니다.");
+        }
+    }
+</script>

@@ -31,4 +31,15 @@
 </tr>
 </table>
 <a href="update?num=${People.num}">수정</a>
-<a href="delete?num=${People.num}" onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</a>
+<a href="delete?num=${People.num}" onclick="sucfail()">삭제</a>
+
+<script>
+function sucfail() {
+        var succsess = confirm("정말로 삭제하시겠습니까?");
+        if (succsess) {
+            alert("삭제에 성공하였습니다.");
+        } else {
+            alert("삭제에 실패하였습니다.");
+        }
+    }
+</script>

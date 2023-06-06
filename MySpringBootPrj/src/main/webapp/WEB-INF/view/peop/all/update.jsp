@@ -38,8 +38,15 @@
     	<td><textarea id="forme2" name="forme2">${People.forme2}</textarea></td>
 </tr>
 </table>
-   <input type="submit" value="저장" />
+   <input type="submit" value="저장" onClick="sucfail()" />
 </form>
 <script>
-
+function sucfail() {
+    var success = confirm("수정하시겠습니까?");
+    if (success) {
+        alert("수정에 성공하였습니다.");
+    } else {
+        alert("수정에 실패하였습니다.");    
+    }
+}
 </script>
