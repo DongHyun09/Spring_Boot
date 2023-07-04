@@ -18,5 +18,15 @@
 		<put-attribute name="body" value="/WEB-INF/view/peop/{1}/{2}.jsp" />
 		<put-attribute name="footer" value="/WEB-INF/view/inc/footer.jsp" />
 	</definition>
+
+	<definition name="user.*.*" template="/WEB-INF/view/user/inc/layout.jsp">
+		<put-attribute name="human" value="인간관계" />
+		<put-attribute name="header" value="/WEB-INF/view/inc/header.jsp" />
+		<put-attribute name="aside" value="/WEB-INF/view/peop/inc/aside.jsp" />
+		<put-attribute name="body" value="/WEB-INF/view/peop/{1}/{2}.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/view/inc/footer.jsp" />
+	</definition>
+
+
 	
 </tiles-definitions>
