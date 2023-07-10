@@ -14,6 +14,7 @@ public class UserApiController {
 	@PostMapping("/api/user")
 	public ResponseDto<Integer> save(@RequestBody User user) {
 		System.out.println("UserApiController : save 호출 됨");
+		//실제로 DB에 insert를 하고 아래에서 return이 되면 된다.
 		return new ResponseDto<Integer>(HttpStatus.OK, 1);
 	}
 }

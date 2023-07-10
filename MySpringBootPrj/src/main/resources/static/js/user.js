@@ -14,7 +14,6 @@ let index={
 		};
 		
 	//console.log(data);
-	
 	//ajax호출시 default가 비동기 호출이다.
 	$.ajax({
 		//회원가입 수행 요청
@@ -22,7 +21,7 @@ let index={
 		url:"/api/user",
 		data:JSON.stringify(data), //http body데이터
 		contentType:"application/json; charset=utf-8", //body데이터가 어떤 타입인지
-		//dataType:"json"
+		dataType:"json"
 	}).done(function(resp){
 		alert("회원가입이 완료되었습니다.");
 		console.log(resp)
